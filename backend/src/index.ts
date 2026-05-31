@@ -16,8 +16,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/watchlist', watchlistRoutes);
+app.use('/watchlist', watchlistRoutes); // Fallback for Vercel if routePrefix is stripped
 
 app.get('/api/health', (_, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+app.get('/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
