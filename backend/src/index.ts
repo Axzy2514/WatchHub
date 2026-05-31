@@ -21,27 +21,21 @@ app.get('/api/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Connect to MongoDB and start server
-async function bootstrap() {
-  const mongoUri = process.env.MONGODB_URI;
-  if (!mongoUri) {
-    console.error('❌ MONGODB_URI environment variable is not set');
-    process.exit(1);
-  }
-
-  try {
-    await mongoose.connect(mongoUri);
-    console.log('✅ Connected to MongoDB');
-
-    app.listen(PORT, () => {
-      console.log(`🚀 WatchVault API running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('❌ Failed to connect to MongoDB:', error);
-    process.exit(1);
-  }
+// Connect to MongoDB
+const mongoUri = process.env.MONGODB_URI;
+if (mongoUri) {
+  mongoose.connect(mongoUri)
+    .then(() => console.log('✅ Connected to MongoDB'))
+    .catch((error) => console.error('❌ Failed to connect to MongoDB:', error));
+} else {
+  console.error('❌ MONGODB_URI environment variable is not set');
 }
 
-bootstrap();
+// Only start the server locally, Vercel handles the Express app directly
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 WatchVault API running on http://localhost:${PORT}`);
+  });
+}
 
 export default app;
